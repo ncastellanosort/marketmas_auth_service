@@ -3,54 +3,54 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CompanyService } from 'src/companies/company.service';
-import type { Company } from 'src/companies/types/company.type';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { LoginDTO } from './dto/login.dto';
+import { UserService } from 'src/user/user.service';
+import type { User } from 'src/user/types/user.type';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private companyRepository: CompanyService,
+    private userRepository: UserService,
     private jwtService: JwtService,
   ) {}
 
   async login(loginDTO: LoginDTO) {
-    const company = await this.companyRepository.findCompany(LoginDTO.email);
-    if (!company) {
+    const user = await this.userRepository.findUser(loginDTO.email);
+    if (!user) {
       throw new UnauthorizedException('invalid credentials');
     }
 
     const isPasswordValid = await bcrypt.compare(
       loginDTO.password,
-      company.password,
+      user.password,
     );
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('invalid credentials');
     }
 
-    const payload = { company };
+    const payload = { user };
     return {
-      company: {
-        id: company.id,
-        name: company.name,
-        email: company.email,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
       },
       token: await this.jwtService.signAsync(payload),
     };
   }
 
-  async register(company: Company) {
-    const hashedPassword = await bcrypt.hash(company.password, 10);
-    const newCompany = { ...company, password: hashedPassword };
+  async register(user: User) {
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    const newUser = { ...user, password: hashedPassword };
 
     try {
-      const savedCompany = await this.companyRepository.saveCompany(newCompany);
-      return savedCompany;
+      const savedUser = await this.userRepository.saveUser(newUser);
+      return savedUser;
     } catch (err) {
-      throw new BadRequestException(`err saving company: ${err}`);
+      throw new BadRequestException(`err saving user: ${err}`);
     }
   }
 
@@ -68,4 +68,3 @@ export class AuthService {
     }
   }
 }
-

@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDTO } from './dto/login.dto';
-import type { User } from './types';
+import type { User } from 'src/user/types/user.type';
 
 @Controller('auth')
 export class AuthController {
@@ -19,8 +19,8 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDTO: LoginDTO) {
-    const { company, token } = await this.authService.login(loginDTO);
-    return { company: company, token: token };
+    const { user, token } = await this.authService.login(loginDTO);
+    return { user: user, token: token };
   }
 
   @Post('register')
@@ -43,4 +43,3 @@ export class AuthController {
     return data;
   }
 }
-
