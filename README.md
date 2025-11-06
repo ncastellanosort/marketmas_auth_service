@@ -1,1 +1,1 @@
-# Authenticacion service between Company and Organization
+# Authentication service between Company and Organization
